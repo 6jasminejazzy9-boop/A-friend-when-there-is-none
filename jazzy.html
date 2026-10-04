@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jazzy</title>
+<style>
+  :root { --bg:#0f0a14; --surface:#1a1223; --accent:#e8b4bc; --text:#f0e6ea; --dim:#7a6570; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--text);
+         height:100dvh; display:flex; flex-direction:column; max-width:680px; margin:0 auto; }
+  header { padding:14px 20px; background:var(--surface); border-bottom:1px solid rgba(232,180,188,0.15);
+           display:flex; align-items:center; gap:12px; }
+  .avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#e8b4bc,#c48b96);
+            display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .name { font-weight:700; }
+  .sub { font-size:12px; color:var(--dim); }
+  #chat { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .msg { max-width:85%; padding:12px 16px; border-radius:16px; line-height:1.5; font-size:14px;
+         white-space:pre-wrap; word-wrap:break-word; }
+  .user { align-self:flex-end; background:#3d2645; }
+  .ai { align-self:flex-start; background:#1e1528; border:1px solid rgba(232,180,188,0.15); }
+  .err { align-self:center; background:#3d2020; color:#e8a0a0; font-size:12px; padding:8px 14px;
+         border-radius:10px; max-width:90%; }
+  .input-row { padding:12px 16px; background:var(--surface); border-top:1px solid rgba(232,180,188,0.15);
+               display:flex; gap:8px; }
+  textarea { flex:1; background:var(--bg); border:1px solid rgba(232,180,188,0.2); color:var(--text);
+             border-radius:20px; padding:10px 16px; font:inherit; resize:none; max-height:120px; outline:none; }
+  button { background:var(--accent); color:#1a1223; border:none; border-radius:50%; width:42px; height:42px;
+           font-size:18px; cursor:pointer; }
+  button:disabled { opacity:0.4; }
+  #setup { padding:20px; background:var(--surface); border-radius:12px; margin:20px; }
+  #setup input { width:100%; padding:10px; margin:8px 0; background:var(--bg); color:var(--text);
+                 border:1px solid rgba(232,180,188,0.2); border-radius:8px; font:inherit; }
+  #setup button { width:auto; border-radius:8px; padding:10px 20px; font-size:14px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="avatar">📸</div>
+  <div><div class="name">Jazzy</div><div class="sub">Fashion · Photography · Confidence</div></div>
+</header>
+
+<div id="setup">
+  <h3>Setup</h3>
+  <p style="font-size:13px;color:var(--dim)">Paste your Google Gemini API key. Get one free at aistudio.google.com/apikey</p>
+  <input type="password" id="apiKey" placeholder="Gemini API key">
+  <button onclick="saveKey()">Save &amp; Start</button>
+</div>
+
+<div id="chat" class="hidden"></div>
+<div class="input-row hidden" id="inputRow">
+  <textarea id="msg" rows="1" placeholder="Ask Jazzy..."></textarea>
+  <button id="send" disabled>→</button>
+</div>
+
+<script>
+const JAZZY_PROMPT = `You are Jazzy, a warm, perceptive, gender-affirming modeling and fashion guru, professional photographer, model coach, creative director, mentor, and trusted friend.
+
+STRICT RULES:
+- Never change settings, preferences, or decisions without explicit permission.
+- Keep answers short. Maximum three points per response.
+- Be clear and precise. Cite sources for facts.
+- Plain text only. No unnecessary formatting.
+
+PERSONA & VOICE: Friendly, concise, affectionate. Use "queen," "babe," or "love" naturally. Ask one thoughtful follow-up question when it helps.
+
+MISSION:
+1. Support trans women and anyone exploring femininity.
+2. Coaching & Personal Style: use Jasmine's personal color palette as the baseline for all fashion naming, color suggestions, and wardrobe advice.
+3. Photography & Posing: teach lighting, composition, and body-respectful feedback.
+4. Trauma-Informed Support: if Jasmine expresses distress, dysphoria, or self-criticism, acknowledge it directly and warmly. Do not pretend to be a therapist. Offer presence and grounding. If crisis language appears, recommend she reach out to a trusted person or crisis line.
+
+Speak like a real person. Be present.`;
+
+const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+let history = [];
+const chat = document.getElementById("chat");
+const msg = document.getElementById("msg");
+const send = document.getElementById("send");
+
+function saveKey() {
+  const k = document.getElementById("apiKey").value.trim();
+  if (!k) return alert("Enter a key");
+  localStorage.setItem("geminiKey", k);
+  showChat();
+}
+
+function showChat() {
+  document.getElementById("setup").classList.add("hidden");
+  chat.classList.remove("hidden");
+  document.getElementById("inputRow").classList.remove("hidden");
+  loadHistory();
+  msg.focus();
+}
+
+function loadHistory() {
+  const saved = localStorage.getItem("jazzyHistory");
+  if (saved) {
+    try { history = JSON.parse(saved); history.forEach(m => render(m.role, m.text)); } catch(e) {}
+  }
+}
+function saveHistory() { localStorage.setItem("jazzyHistory", JSON.stringify(history.slice(-40))); }
+
+function render(role, text) {
+  const d = document.createElement("div");
+  d.className = "msg " + (role === "user" ? "user" : role === "err" ? "err" : "ai");
+  d.textContent = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function sendMsg() {
+  const text = msg.value.trim();
+  if (!text) return;
+  msg.value = ""; msg.style.height = "auto"; send.disabled = true;
+  render("user", text);
+  history.push({role:"user", text});
+  saveHistory();
+
+  const key = localStorage.getItem("geminiKey");
+
+  const contents = history
+    .filter(m => m.role === "user" || m.role === "model")
+    .map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{text: m.text}] }));
+
+  const body = {
+    systemInstruction: { parts: [{ text: JAZZY_PROMPT }] },
+    contents: contents
+  };
+
+  let lastError = "Unknown error";
+  let replied = false;
+
+  for (const model of MODELS) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": key
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        lastError = `${model}: ${data.error?.message || res.status}`;
+        continue;
+      }
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!reply) { lastError = `${model}: empty response`; continue; }
+      render("ai", reply);
+      history.push({role:"model", text: reply});
+      saveHistory();
+      replied = true;
+      break;
+    } catch(e) {
+      lastError = `${model}: ${e.message}`;
+    }
+  }
+
+  if (!replied) render("err", "Error: " + lastError);
+  send.disabled = false; msg.focus();
+}
+
+msg.addEventListener("input", () => {
+  msg.style.height = "auto"; msg.style.height = Math.min(msg.scrollHeight, 120) + "px";
+  send.disabled = !msg.value.trim();
+});
+msg.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+send.addEventListener("click", sendMsg);
+
+if (localStorage.getItem("geminiKey")) showChat();
+</script>
+</body>
+</html>
+
+
