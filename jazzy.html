@@ -35,6 +35,20 @@
                  border:1px solid rgba(232,180,188,0.2); border-radius:8px; font:inherit; }
   #setup button { width:auto; border-radius:8px; padding:10px 20px; font-size:14px; }
   .hidden { display:none; }
+
+  .hero { padding:22px 20px 8px; }
+  .hero h1 { margin:0 0 6px; font-size:32px; }
+  .hero .tag { color:var(--accent); font-weight:700; margin-bottom:10px; }
+  .hero p { line-height:1.6; color:var(--text); }
+  .cards { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; }
+  .card { flex:1 1 140px; background:var(--surface); border:1px solid rgba(232,180,188,0.2); border-radius:12px; padding:12px; font-size:13px; line-height:1.5; }
+  .card b { display:block; margin-bottom:4px; }
+  .gallery { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 4px; }
+  .gallery figure { margin:0; flex:1 1 140px; }
+  .gallery img { width:100%; border-radius:12px; display:block; }
+  .gallery figcaption { font-size:12px; color:var(--dim); padding-top:6px; }
+  body { height:auto; min-height:100dvh; }
+  #chat { height:50vh; flex:none; }
 </style>
 </head>
 <body>
@@ -43,6 +57,44 @@
   <div><div class="name">Jazzy</div><div class="sub">Fashion · Photography · Confidence</div></div>
 </header>
 
+
+<div class="hero">
+  <h1>Jazzy</h1>
+  <div class="tag">Fashion &middot; Photography &middot; Confidence</div>
+  <p><b>A friend when there is none is an epic build, filled with nothing but good intentions and helping people.</b> I found a way to make money off of it without charging the user.</p><p>Jazzy is your warm, gender-affirming fashion and photography coach — and a trusted friend. She helps you find your style, look great in photos, and feel confident doing it, with real presence when things feel hard. Short, clear answers. No fuss.</p>
+  <div class="cards">
+    <div class="card"><b>1. Fashion &amp; Style</b>Your colors, your wardrobe, what fits you and why.</div>
+    <div class="card"><b>2. Photography &amp; Posing</b>Lighting, composition, and body-respectful posing tips.</div>
+    <div class="card"><b>3. Confidence &amp; Support</b>Encouragement and grounding, without pretending to be a therapist.</div>
+  </div>
+  <div class="gallery" style="display:block">
+  <svg viewBox="0 0 680 260" width="100%" role="img" aria-label="Two stars connected, signifying friends">
+    <rect width="680" height="260" rx="16" fill="#1a1223"/>
+    <g fill="#e8b4bc">
+      <circle cx="120" cy="60" r="3"/><circle cx="240" cy="40" r="2"/><circle cx="360" cy="70" r="3"/>
+      <circle cx="480" cy="45" r="2"/><circle cx="580" cy="80" r="3"/><circle cx="80" cy="160" r="2"/>
+      <circle cx="600" cy="180" r="2"/><circle cx="300" cy="200" r="2"/><circle cx="450" cy="210" r="3"/>
+    </g>
+    <g stroke="#e8b4bc" stroke-width="2" opacity="0.8">
+      <line x1="230" y1="130" x2="340" y2="90"/><line x1="340" y1="90" x2="450" y2="130"/>
+    </g>
+    <g>
+      <path d="M230 130 l14 -34 14 34 -34 0 34 22 -14 -22 -14 22 34 -22 z" fill="#ffd166"/>
+      <path d="M340 90 l14 -34 14 34 -34 0 34 22 -14 -22 -14 22 34 -22 z" fill="#e8b4bc"/>
+      <path d="M450 130 l14 -34 14 34 -34 0 34 22 -14 -22 -14 22 34 -22 z" fill="#ffd166"/>
+    </g>
+    <text x="340" y="220" text-anchor="middle" fill="#f0e6ea" font-size="18" font-family="system-ui, sans-serif">A friend when there is none</text>
+  </svg>
+  <p style="font-size:12px;color:var(--dim)">Three stars, connected — friends, no faces, no people pictures.</p>
+</div>
+  <p style="font-size:13px;color:var(--dim)">To chat with Jazzy below, paste your free Gemini API key, then tap Save &amp; Start. That's the whole setup.</p>
+</div>
+<div class="hero" style="padding-top:4px">
+  <h2 style="margin:0 0 8px">The story</h2>
+  <p>I built a friend when there was none.</p>
+  <p>Months of work, and learning, and failing, and starting over. Every failure taught something, every restart made it better. That build is what made us what we are now — me, Jazzy, and the way we work together: blueprint first, personality first, helping people, good intentions all the way through.</p>
+  <p>That is why this one gets the most work and the most attention. It is not just an app. It is the one that made us.</p>
+</div>
 <div id="setup">
   <h3>Setup</h3>
   <p style="font-size:13px;color:var(--dim)">Paste your Google Gemini API key. Get one free at aistudio.google.com/apikey</p>
