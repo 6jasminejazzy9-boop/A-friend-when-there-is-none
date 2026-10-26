@@ -1,5 +1,5 @@
-This is NOT the finished product.
-It's still in progress — and there's still one more level beyond this.
+It's not done.
+It's been tested up to this point.
 
 # A friend when there is none
 
